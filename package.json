@@ -24,7 +24,6 @@
     "@vitejs/plugin-legacy": "^8.0.2",
     "adm-zip": "^0.5.17",
     "esbuild": "^0.28.0",
-    "sharp": "^0.34.5",
     "terser": "^5.47.1",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",

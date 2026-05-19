@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const AdmZip = require('adm-zip');
-const sharp = require('sharp');
 
 const KAIOS_SIZES = [56, 112];
 const svgIcon = `
@@ -66,12 +65,20 @@ async function main() {
     if (!fs.existsSync(publicDir)) {
         fs.mkdirSync(publicDir);
     }
-    const svgBuffer = Buffer.from(svgIcon.trim());
+    const svgPath = path.join(publicDir, 'icon.svg');
+    fs.writeFileSync(svgPath, svgIcon.trim());
+    console.log('✅ Generated vector source: icon.svg');
+
     for (const size of KAIOS_SIZES) {
         const fileName = `icon-${size}.png`;
+        const outputPath = path.join(publicDir, fileName);
         try {
-            await sharp(svgBuffer).resize(size, size).png().toFile(path.join(publicDir, fileName));
-            console.log(`✅ Generated KaiOS PNG: ${fileName}`);
+            try {
+                execSync(`magick "${svgPath}" -resize ${size}x${size} -background none "${outputPath}"`, { stdio: 'pipe' });
+            } catch (err) {
+                execSync(`convert "${svgPath}" -resize ${size}x${size} -background none "${outputPath}"`, { stdio: 'pipe' });
+            }
+            console.log(`✅ Generated KaiOS PNG (ImageMagick): ${fileName}`);
         } catch (error) {
             console.error(`❌ Error generating ${fileName}:`, error.message);
         }
